@@ -33,3 +33,6 @@ While logged in to your Moodle instance as an administrator:
 * Authorise your user
     * Under `Administration > Site administration > Plugins > Web services > External services`, `Authorised users` should be an option for your new web service
     * Add your web service user
+* Create a token for the user
+    * `Administration > Site administration > Plugins > Web services > Manage tokens`
+    * Choose your web service user and your custom API
