@@ -1,21 +1,127 @@
-# test plan
+from django.contrib.auth.models import User
+from django.core.urlresolvers import resolve, reverse
+from django.http import HttpRequest
+from django.test import TestCase, Client
+
+from .forms import RegistrationForm
+from .views import RegistrationView
 
 class RegistrationTests(TestCase):
-    pass
     # Registration page
     # --------------------------------------------------------------------------
-    # Has a form of the correct type
-    # Is world-visible
+
+    REGULAR_USERNAME = 'user1'
+    REGULAR_PASSWORD = 'user1_password'
+
+    def setUpClass(cls):
+        cls.client = Client()
+        cls.regular_user = User.objects.create_user(
+            username=REGULAR_USERNAME,
+            password=REGULAR_PASSWORD
+        )
+
+
+    # The registration page exists.
+    def test_registration_page_url_reverses(self):
+        url = reverse('courses:registration')
+        self.assertEqual(url, '/courses/register')
+
+
+    def test_registration_page_url_resolves(self):
+        found = resolve('/courses/register')
+        self.assertEqual(found.func, RegistrationView)
+
+
+    # It has a form of the correct type.
+    def test_registration_page_has_form(self):
+        request = HttpRequest()
+        response = RegistrationView.as_view()(request)
+        self.assertIn('form', response.context)
+        self.assertIsInstance(response.context['form'], RegistrationForm)
+
+
+    # It is world-visible.
+    def test_registration_page_visibility(self):
+        # Anonymous users can see it.
+        url = reverse('courses:registration')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        # Logged in users can see it.
+        self.client.login(username=REGULAR_USERNAME, password=REGULAR_PASSWORD)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+
+    # It includes course descriptions & instructor images for upcoming courses
+    def test_registration_page_course_content(self):
+        url = reverse('courses:registration')
+        response = self.client.get(url)
+        # Create some course objects with varying status
+        # Make sure that description and instructor image URL are in page
+        # for all upcoming courses
+        # Make sure that description and instructor image URL are NOT in page
+        # for any past courses
+        assert False
+
     # We do ~not~ need to test that a registration object is created - that's
-    #   django formview
-    # We ~do~ need to test that the registration view calls our Stripe function
-    #   with correct parameters (but we should mock that out)
-    # We ~do~ need to test that the registration view calls:
-    #   * moodle_create_user for anyone who doesn't have an associated moodle
-    #       user
-    #   * moodle_assign_user_to_course for everyone registered, whether or not
-    #       they had an existing moodle user
-    # Includes course descriptions & instructor images for all upcoming courses
+    # on django formview.
+
+    # Good data tests (it does the right thing when form.is_valid())
+    # --------------------------------------------------------------------------
+
+    # The registration view calls our Stripe function with correct parameters
+    # on form submit, when the form is valid.
+    def test_registration_calls_stripe(self):
+        url = reverse('courses:registration')
+        response = self.client.post(url)
+        # Need to construct post data, import and use mock and add it to the
+        # requirements, etc.
+        assert False
+
+
+    def test_registration_calls_moodle_create_user(self):
+        url = reverse('courses:registration')
+        response = self.client.post(url)
+        # Need to construct post data, import and use mock and add it to the
+        # requirements, etc.
+        # Also need to assert there is no moodle user yet
+        assert False
+
+
+    def test_registration_gets_existing_moodle_user(self):
+        url = reverse('courses:registration')
+        response = self.client.post(url)
+        # Need to construct post data, import and use mock and add it to the
+        # requirements, etc.
+        # Also need to assert there IS a moodle user
+        # And that moodle_create_user is not called in this case
+        assert False
+
+
+    def test_registration_calls_moodle_assign_user(self):
+        url = reverse('courses:registration')
+        response = self.client.post(url)
+        # Need to construct post data, import and use mock and add it to the
+        # requirements, etc.
+        assert False
+
+
+    # Bad data tests (it does the right thing when NOT form.is_valid())
+    # --------------------------------------------------------------------------
+
+    # The registration view does NOT call our Stripe function on form submit,
+    # when the form is invalid.
+    def test_invalid_registration_does_not_call_stripe(self):
+        assert False
+
+
+    def test_invalid_registration_does_not_call_moodle_create_user(self):
+        assert False
+
+
+    def test_invalid_registration_does_not_call_moodle_assign_user(self):
+        assert False
 
 
     # Registration form
