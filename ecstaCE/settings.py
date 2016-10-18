@@ -78,7 +78,7 @@ DEBUG = bool(os.environ.get('DJANGO_DEBUG', True))
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'ecstaCE',
+        'NAME': 'ecstace',
         'USER': os.environ.get('DJANGO_DB_USER', None),
         'PASSWORD': os.environ.get('DJANGO_DB_PASSWORD', None),
         'HOST': 'localhost',
@@ -151,6 +151,12 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'collectedstatic')
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
+
+# MEDIA CONFIGURATION
+# ------------------------------------------------------------------------------
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
 
 # LOGGING CONFIGURATION
 # ------------------------------------------------------------------------------

@@ -8,6 +8,11 @@
 * server dependencies
 * Stripe
 
+## System dependencies
+Postgres
+    with a database named ecstace (note lowercase)
+    and a user with appropriate privs
+
 ## Django configuration
 
 Set the following environment variables:

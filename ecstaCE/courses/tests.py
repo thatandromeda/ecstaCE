@@ -1,8 +1,12 @@
+from datetime import date, timedelta
+from tempfile import NamedTemporaryFile
+
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import TestCase, Client
 
 from .forms import RegistrationForm
+from .models import Course, Instructor
 
 REGULAR_USERNAME = 'user1'
 REGULAR_PASSWORD = 'user1_password'
@@ -38,7 +42,7 @@ class RegistrationTests(TestCase):
     # It is world-visible.
     def test_registration_page_visibility(self):
         # Anonymous users can see it.
-        url = reverse('courses:registration')
+        url = reverse('courses:register')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
@@ -50,14 +54,83 @@ class RegistrationTests(TestCase):
 
     # It includes course descriptions & instructor images for upcoming courses
     def test_registration_page_course_content(self):
-        url = reverse('courses:registration')
+        # Set up courses.
+        # This course has not yet started, and should appear on the page.
+        image_future = NamedTemporaryFile(suffix=".jpg").name
+        instructor_future = Instructor(
+            name='Carla Hayden',
+            institution='Library of Congress',
+            picture=image_future
+        )
+        instructor_future.save()
+
+        description_future = 'Had Henriette Avram only known it all would be different'
+
+        course_future = Course(
+            full_name='Introduction to SQL for Librarians',
+            short_name='SQL2016',
+            description=description_future,
+            start_date=date.today() + timedelta(days=1),
+            end_date=date.today() + timedelta(days=8)
+        )
+        course_future.save()
+        course_future.instructors.add(instructor_future)
+
+        # This course is in progress, and should not appear.
+        image_current = NamedTemporaryFile(suffix=".jpg").name
+        instructor_current = Instructor(
+            name='Judith Krug',
+            institution='American Library Association',
+            picture=image_current
+        )
+        instructor_current.save()
+
+        description_current = 'Meow'
+
+        course_current = Course(
+            full_name='Web Programming with Cat GIFs',
+            short_name='GIF2016',
+            description=description_current,
+            start_date=date.today() - timedelta(days=1),
+            end_date=date.today() + timedelta(days=6)
+        )
+        course_current.save()
+        course_current.instructors.add(instructor_current)
+
+        # This course is over, and should not appear.
+        image_past = NamedTemporaryFile(suffix=".jpg").name
+        instructor_past = Instructor(
+            name='Zoia Horn',
+            institution='Bucknell University',
+            picture=image_past
+        )
+        instructor_past.save()
+
+        description_past = 'See enclosing codebase'
+
+        course_past = Course(
+            full_name='Hacking Legacy Infrastructure for Fun',
+            short_name='META',
+            description=description_past,
+            start_date=date.today() - timedelta(days=8),
+            end_date=date.today() - timedelta(days=1)
+        )
+        course_past.save()
+        course_past.instructors.add(instructor_past)
+
+        url = reverse('courses:register')
         response = self.client.get(url)
-        # Create some course objects with varying status
         # Make sure that description and instructor image URL are in page
         # for all upcoming courses
+        self.assertContains(response, description_future)
+        self.assertContains(response, url_future)
+
         # Make sure that description and instructor image URL are NOT in page
         # for any past courses
-        assert False
+        self.assertNotContains(response, description_current)
+        self.assertContains(response, url_current)
+        self.assertNotContains(response, description_past)
+        self.assertContains(response, url_past)
 
     # We do ~not~ need to test that a registration object is created - that's
     # on django formview.
