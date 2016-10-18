@@ -8,6 +8,12 @@
 * server dependencies
 * Stripe
 
+## Django configuration
+
+Set the following environment variables:
+    * DJANGO_SECRET_KEY
+    * DJANGO_DEBUG (optional; Django will use debug mode if this is set (to anything), and non-debug mode if it is unset)
+
 ## Enable and configure web services
 
 While logged in to your Moodle instance as an administrator:
