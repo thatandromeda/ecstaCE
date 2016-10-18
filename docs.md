@@ -6,6 +6,7 @@
         * enable REST api
     * and security
 * server dependencies
+* Stripe
 
 ## Enable and configure web services
 
