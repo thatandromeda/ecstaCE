@@ -15,6 +15,9 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 
+from ecstaCE.courses.urls import urlpatterns as courses_urls
+
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^courses/', include(courses_urls, namespace='courses')),
 ]

@@ -1,19 +1,19 @@
 from django.contrib.auth.models import User
-from django.core.urlresolvers import resolve, reverse
-from django.http import HttpRequest
+from django.core.urlresolvers import reverse
 from django.test import TestCase, Client
 
 from .forms import RegistrationForm
-from .views import RegistrationView
+
+REGULAR_USERNAME = 'user1'
+REGULAR_PASSWORD = 'user1_password'
 
 class RegistrationTests(TestCase):
     # Registration page
     # --------------------------------------------------------------------------
 
-    REGULAR_USERNAME = 'user1'
-    REGULAR_PASSWORD = 'user1_password'
-
+    @classmethod
     def setUpClass(cls):
+        super(RegistrationTests, cls).setUpClass()
         cls.client = Client()
         cls.regular_user = User.objects.create_user(
             username=REGULAR_USERNAME,
@@ -23,19 +23,14 @@ class RegistrationTests(TestCase):
 
     # The registration page exists.
     def test_registration_page_url_reverses(self):
-        url = reverse('courses:registration')
-        self.assertEqual(url, '/courses/register')
-
-
-    def test_registration_page_url_resolves(self):
-        found = resolve('/courses/register')
-        self.assertEqual(found.func, RegistrationView)
+        url = reverse('courses:register')
+        self.assertEqual(url, '/courses/register/')
 
 
     # It has a form of the correct type.
     def test_registration_page_has_form(self):
-        request = HttpRequest()
-        response = RegistrationView.as_view()(request)
+        url = reverse('courses:register')
+        response = self.client.get(url)
         self.assertIn('form', response.context)
         self.assertIsInstance(response.context['form'], RegistrationForm)
 
@@ -186,4 +181,3 @@ class CourseManagementTests(TestCase):
 # How do we tell if people already have an associated Moodle user?
 # What information must the registration form collect (or autofill) to create
 #   moodle users?
-
